@@ -1,0 +1,121 @@
+﻿@model Event_Registration_Portal.ViewModels.EventsIndexViewModel
+@{
+    ViewData["Title"] = "Events";
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger mt-3">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success mt-3">@TempData["Success"]</div>
+}
+
+<h3 class="mt-4 mb-3">My booked events</h3>
+@if (!Model.MyBookings.Any())
+{
+    <p class="text-muted">You haven't booked any events yet.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var b in Model.MyBookings)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card event-card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <h5>@b.Event.Title</h5>
+                        <p class="mb-2">@b.Event.EventDate.ToString("dd MMM yyyy, HH:mm")</p>
+                        <span class="badge bg-primary">Seat @b.SeatNumber</span>
+                        <span class="badge bg-secondary">Booking #@b.Id</span>
+                        <div class="mt-3">
+                            <a asp-controller="Bookings" asp-action="Confirmation" asp-route-id="@b.Id"
+                               class="btn btn-sm btn-outline-primary">View</a>
+                            @if (b.Event.EventDate > DateTime.Now)
+                            {
+                                <form asp-controller="Bookings" asp-action="Cancel" asp-route-id="@b.Id"
+                                      method="post" class="d-inline"
+                                      onsubmit="return confirm('Cancel this booking?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<h3 class="mt-5 mb-3">Events you can book</h3>
+
+<form method="get" asp-action="Index" class="row g-2 mb-4">
+    <div class="col-auto">
+        <label class="form-label small mb-0">From</label>
+        <input type="date" name="fromDate" value="@ViewData["From"]" class="form-control" />
+    </div>
+    <div class="col-auto">
+        <label class="form-label small mb-0">To</label>
+        <input type="date" name="toDate" value="@ViewData["To"]" class="form-control" />
+    </div>
+    <div class="col-auto align-self-end">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+    </div>
+</form>
+
+@if (!Model.AvailableEvents.Any())
+{
+    <p class="text-muted">No events found.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var ev in Model.AvailableEvents)
+        {
+            var seatsLeft = ev.Capacity - ev.Bookings.Count;
+            var closed = DateTime.Now > ev.RegistrationDeadLine;
+            var full = seatsLeft <= 0;
+
+            <div class="col-md-4 mb-3">
+                <div class="card event-card shadow-sm border-0 h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h5>@ev.Title</h5>
+                        <p class="text-muted small">@ev.Description</p>
+                        <p class="mb-1">@ev.EventDate.ToString("dd MMM yyyy, HH:mm")</p>
+                        <p class="mb-1 small">Registration closes 3 days before: @ev.RegistrationDeadLine.ToString("dd MMM yyyy")</p>
+                        <p class="mb-3 small">Seats left: @seatsLeft / @ev.Capacity</p>
+                        <div class="mt-auto">
+                            @if (closed)
+                            {
+                                <button class="btn btn-secondary w-100" disabled>Registration closed</button>
+                            }
+                            else if (full)
+                            {
+                                if (Model.WaitlistEventIds.Contains(ev.Id))
+                                {
+                                    <button class="btn btn-warning w-100" disabled>On waitlist</button>
+                                }
+                                else
+                                {
+                                    <form asp-controller="Bookings" asp-action="JoinWaitlist" method="post">
+                                        <input type="hidden" name="eventId" value="@ev.Id" />
+                                        <button type="submit" class="btn btn-outline-danger w-100">Full - join waitlist</button>
+                                    </form>
+                                }
+                            }
+                            else
+                            {
+                                <form asp-controller="Bookings" asp-action="Book" method="post">
+                                    <input type="hidden" name="eventId" value="@ev.Id" />
+                                    <button type="submit" class="btn btn-primary w-100">Book my seat</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
