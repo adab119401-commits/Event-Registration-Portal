@@ -19,7 +19,7 @@ namespace Event_Registration_Portal.ViewModels
         public DateTime? EventDate { get; set; }
 
         [Required]
-        [Range(1, 10, ErrorMessage = "Capacity must be between 1 and 10.")]
+        [Range(1, 500, ErrorMessage = "Capacity must be between 1 and 500.")]
         public int? Capacity { get; set; }
     }
 }

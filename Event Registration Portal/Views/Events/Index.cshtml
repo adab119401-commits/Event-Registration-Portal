@@ -3,16 +3,21 @@
     ViewData["Title"] = "Events";
 }
 
+<div class="page-hero">
+    <h1>Discover Events</h1>
+    <p>Book your seat before registration closes.</p>
+</div>
+
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger mt-3">@TempData["Error"]</div>
+    <div class="alert alert-danger">@TempData["Error"]</div>
 }
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success mt-3">@TempData["Success"]</div>
+    <div class="alert alert-success">@TempData["Success"]</div>
 }
 
-<h3 class="mt-4 mb-3">My booked events</h3>
+<h3 class="section-title">🎟 My booked events</h3>
 @if (!Model.MyBookings.Any())
 {
     <p class="text-muted">You haven't booked any events yet.</p>
@@ -22,16 +27,16 @@ else
     <div class="row">
         @foreach (var b in Model.MyBookings)
         {
-            <div class="col-md-4 mb-3">
-                <div class="card event-card shadow-sm border-0 h-100">
+            <div class="col-md-4 mb-4">
+                <div class="card event-card h-100">
                     <div class="card-body">
-                        <h5>@b.Event.Title</h5>
-                        <p class="mb-2">@b.Event.EventDate.ToString("dd MMM yyyy, HH:mm")</p>
+                        <h5 class="event-title">@b.Event.Title</h5>
+                        <p class="event-meta">📅 @b.Event.EventDate.ToString("dd MMM yyyy, HH:mm")</p>
                         <span class="badge bg-primary">Seat @b.SeatNumber</span>
                         <span class="badge bg-secondary">Booking #@b.Id</span>
                         <div class="mt-3">
                             <a asp-controller="Bookings" asp-action="Confirmation" asp-route-id="@b.Id"
-                               class="btn btn-sm btn-outline-primary">View</a>
+                               class="btn btn-sm btn-outline-primary">View ticket</a>
                             @if (b.Event.EventDate > DateTime.Now)
                             {
                                 <form asp-controller="Bookings" asp-action="Cancel" asp-route-id="@b.Id"
@@ -48,9 +53,9 @@ else
     </div>
 }
 
-<h3 class="mt-5 mb-3">Events you can book</h3>
+<h3 class="section-title">✨ Events you can book</h3>
 
-<form method="get" asp-action="Index" class="row g-2 mb-4">
+<form method="get" asp-action="Index" class="filter-bar row g-2 mb-4">
     <div class="col-auto">
         <label class="form-label small mb-0">From</label>
         <input type="date" name="fromDate" value="@ViewData["From"]" class="form-control" />
@@ -77,15 +82,36 @@ else
             var seatsLeft = ev.Capacity - ev.Bookings.Count;
             var closed = DateTime.Now > ev.RegistrationDeadLine;
             var full = seatsLeft <= 0;
+            var percentTaken = ev.Capacity == 0 ? 0 : (ev.Bookings.Count * 100 / ev.Capacity);
 
-            <div class="col-md-4 mb-3">
-                <div class="card event-card shadow-sm border-0 h-100">
+            <div class="col-md-4 mb-4">
+                <div class="card event-card h-100">
                     <div class="card-body d-flex flex-column">
-                        <h5>@ev.Title</h5>
+                        <div class="mb-2">
+                            @if (closed)
+                            {
+                                <span class="badge badge-closed">Closed</span>
+                            }
+                            else if (full)
+                            {
+                                <span class="badge badge-full">Full</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-open">Open</span>
+                            }
+                        </div>
+
+                        <h5 class="event-title">@ev.Title</h5>
                         <p class="text-muted small">@ev.Description</p>
-                        <p class="mb-1">@ev.EventDate.ToString("dd MMM yyyy, HH:mm")</p>
-                        <p class="mb-1 small">Registration closes 3 days before: @ev.RegistrationDeadLine.ToString("dd MMM yyyy")</p>
-                        <p class="mb-3 small">Seats left: @seatsLeft / @ev.Capacity</p>
+                        <p class="event-meta">📅 @ev.EventDate.ToString("dd MMM yyyy, HH:mm")</p>
+                        <p class="event-meta">⏰ Register by @ev.RegistrationDeadLine.ToString("dd MMM yyyy")</p>
+
+                        <div class="seat-bar mb-1">
+                            <div class="seat-fill" style="width:@percentTaken%"></div>
+                        </div>
+                        <p class="small text-muted mb-3">@seatsLeft of @ev.Capacity seats left</p>
+
                         <div class="mt-auto">
                             @if (closed)
                             {

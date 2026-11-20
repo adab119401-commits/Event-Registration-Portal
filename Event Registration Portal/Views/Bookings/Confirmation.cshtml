@@ -3,21 +3,54 @@
     ViewData["Title"] = "Booking Confirmed";
 }
 
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6">
-        <div class="card shadow border-0 text-center">
-            <div class="card-body p-4">
-                <h2 class="text-success mb-1">Booking confirmed</h2>
-                <p class="text-muted mb-4">Thank you, @Model.User.Name</p>
-                <table class="table table-borderless text-start mb-4">
-                    <tr><th>Booking ID</th><td>#@Model.Id</td></tr>
-                    <tr><th>Event</th><td>@Model.Event.Title</td></tr>
-                    <tr><th>Date</th><td>@Model.Event.EventDate.ToString("dd MMM yyyy, HH:mm")</td></tr>
-                    <tr><th>Seat number</th><td>@Model.SeatNumber</td></tr>
-                    <tr><th>Booked on</th><td>@Model.BookedOn.ToString("dd MMM yyyy, HH:mm")</td></tr>
-                </table>
-                <a asp-controller="Events" asp-action="Index" class="btn btn-primary">Back to events</a>
+<div class="row justify-content-center mt-4">
+    <div class="col-md-7">
+
+        <div class="text-center mb-4">
+            <div class="success-tick">✓</div>
+            <h2 class="fw-semibold mb-1">Booking confirmed</h2>
+            <p class="text-muted">Thank you, @Model.User.Name. Your seat is reserved.</p>
+        </div>
+
+        <div class="ticket">
+            <div class="ticket-top">
+                <small>EVENT TICKET</small>
+                <h3 class="mb-0">@Model.Event.Title</h3>
+            </div>
+
+            <div class="ticket-body">
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <div class="ticket-label">Date</div>
+                        <div class="ticket-value">@Model.Event.EventDate.ToString("dd MMM yyyy")</div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="ticket-label">Time</div>
+                        <div class="ticket-value">@Model.Event.EventDate.ToString("HH:mm")</div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="ticket-label">Booking ID</div>
+                        <div class="ticket-value">#@Model.Id</div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="ticket-label">Booked on</div>
+                        <div class="ticket-value">@Model.BookedOn.ToString("dd MMM yyyy, HH:mm")</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ticket-divider"></div>
+
+            <div class="ticket-seat">
+                <div class="ticket-label">Seat number</div>
+                <div class="seat-number">@Model.SeatNumber</div>
             </div>
         </div>
+
+        <div class="text-center mt-4">
+            <a asp-controller="Events" asp-action="Index" class="btn btn-primary">Back to events</a>
+            <button type="button" class="btn btn-outline-primary" onclick="window.print()">Print ticket</button>
+        </div>
+
     </div>
 </div>

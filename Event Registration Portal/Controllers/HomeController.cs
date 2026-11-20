@@ -1,19 +1,30 @@
+using Event_Registration_Portal.Data;
 using Event_Registration_Portal.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace Event_Registration_Portal.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly EventDbContext _context;
+
+        public HomeController(EventDbContext context)
         {
-            return View();
+            _context = context;
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var upcoming = await _context.Events
+                .Include(e => e.Bookings)
+                .Where(e => e.EventDate > DateTime.Now)
+                .OrderBy(e => e.EventDate)
+                .Take(3)
+                .ToListAsync();
+
+            return View(upcoming);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -10,7 +10,7 @@ namespace Event_Registration_Portal.Models
         public string Description { get; set; } = "";
         [Required]
         public DateTime EventDate { get; set; }
-        [Range(1, 10, ErrorMessage = "Capacity must be between 1 and 10.")]
+        [Range(1, 500, ErrorMessage = "Capacity must be between 1 and 500.")]
         public int Capacity { get; set; }
         public DateTime RegistrationDeadLine => EventDate.AddDays(-3); // Registration deadline is 3 days before the event
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();

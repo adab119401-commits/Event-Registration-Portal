@@ -3,59 +3,69 @@
     ViewData["Title"] = "Manage Events";
 }
 
+<div class="page-hero d-flex justify-content-between align-items-center">
+    <div>
+        <h1>Manage Events</h1>
+        <p>Create, edit and remove events.</p>
+    </div>
+    <a asp-action="CreateEvent" class="btn btn-warning btn-lg">+ New event</a>
+</div>
+
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success mt-3">@TempData["Success"]</div>
+    <div class="alert alert-success">@TempData["Success"]</div>
 }
 
-<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
-    <h3 class="mb-0">Manage events</h3>
-    <a asp-action="CreateEvent" class="btn btn-primary">+ New event</a>
-</div>
-
-<div class="card shadow border-0">
-    <table class="table table-hover mb-0 align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Title</th>
-                <th>Date</th>
-                <th>Registration closes</th>
-                <th>Seats</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var e in Model)
-            {
+@if (!Model.Any())
+{
+    <p class="text-muted">No events yet. Click "+ New event" to add one.</p>
+}
+else
+{
+    <div class="table-responsive admin-table">
+        <table class="table table-hover mb-0 align-middle">
+            <thead>
                 <tr>
-                    <td>@e.Title</td>
-                    <td>@e.EventDate.ToString("dd MMM yyyy, HH:mm")</td>
-                    <td>@e.RegistrationDeadLine.ToString("dd MMM yyyy")</td>
-                    <td>@e.Bookings.Count / @e.Capacity</td>
-                    <td>
-                        @if (DateTime.Now > e.RegistrationDeadLine)
-                        {
-                            <span class="badge bg-secondary">Closed</span>
-                        }
-                        else if (e.Bookings.Count >= e.Capacity)
-                        {
-                            <span class="badge bg-danger">Full</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-success">Open</span>
-                        }
-                    </td>
-                    <td>
-                        <a asp-action="EditEvent" asp-route-id="@e.Id" class="btn btn-sm btn-outline-primary">Edit</a>
-                        <form asp-action="DeleteEvent" asp-route-id="@e.Id" method="post" class="d-inline"
-                              onsubmit="return confirm('Delete this event? All its bookings and waitlist entries will be deleted too.');">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                        </form>
-                    </td>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Registration closes</th>
+                    <th>Seats</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@e.Title</td>
+                        <td>@e.EventDate.ToString("dd MMM yyyy, HH:mm")</td>
+                        <td>@e.RegistrationDeadLine.ToString("dd MMM yyyy")</td>
+                        <td>@e.Bookings.Count / @e.Capacity</td>
+                        <td>
+                            @if (DateTime.Now > e.RegistrationDeadLine)
+                            {
+                                <span class="badge badge-closed">Closed</span>
+                            }
+                            else if (e.Bookings.Count >= e.Capacity)
+                            {
+                                <span class="badge badge-full">Full</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-open">Open</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-action="EditEvent" asp-route-id="@e.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <form asp-action="DeleteEvent" asp-route-id="@e.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('Delete this event? All its bookings and waitlist entries will be deleted too.');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

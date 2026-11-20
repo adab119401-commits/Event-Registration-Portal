@@ -1,19 +1,85 @@
-﻿@{
+﻿@model List<Event_Registration_Portal.Models.Event>
+@{
     ViewData["Title"] = "Home";
+    var loggedIn = User.Identity?.IsAuthenticated == true;
 }
 
-<div class="hero text-center text-white">
-    <h1 class="display-5 fw-bold">Event Registration Portal</h1>
-    <p class="lead mb-4">Discover events, book your seat, and never miss out.</p>
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <a asp-controller="Events" asp-action="Index" class="btn btn-light btn-lg">Browse events</a>
-    }
-    else
-    {
-        <a asp-controller="Account" asp-action="Register" class="btn btn-light btn-lg me-2">Register</a>
-        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-lg">Login</a>
-    } 
-    
+<div class="home-hero text-center">
+    <h1>Welcome to Adab's Event Portal</h1>
+    <p class="lead">
+        We are here to make your booking seamless.<br />
+        <strong>Enjoy as you Explore!</strong>
+    </p>
+    <div class="mt-4">
+        @if (loggedIn)
+        {
+            <a asp-controller="Events" asp-action="Index" class="btn btn-light btn-lg me-2">Browse Events</a>
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Register" class="btn btn-light btn-lg me-2">Get Started</a>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-lg">Login</a>
+        }
+    </div>
 </div>
 
+<h3 class="section-title text-center">Upcoming events</h3>
+@if (!Model.Any())
+{
+    <p class="text-muted text-center">No upcoming events yet. Check back soon!</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var ev in Model)
+        {
+            var seatsLeft = ev.Capacity - ev.Bookings.Count;
+            <div class="col-md-4 mb-4">
+                <div class="card event-card h-100">
+                    <div class="card-body">
+                        <h5 class="event-title">@ev.Title</h5>
+                        <p class="text-muted small">@ev.Description</p>
+                        <p class="event-meta">📅 @ev.EventDate.ToString("dd MMM yyyy, HH:mm")</p>
+                        <p class="event-meta">⏰ Register by @ev.RegistrationDeadLine.ToString("dd MMM yyyy")</p>
+                        <p class="small text-muted mb-0">@(seatsLeft > 0 ? $"{seatsLeft} of {ev.Capacity} seats left" : "Fully booked")</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="text-center mb-4">
+        @if (loggedIn)
+        {
+            <a asp-controller="Events" asp-action="Index" class="btn btn-primary">See all events</a>
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Login to book</a>
+        }
+    </div>
+}
+
+<h3 class="section-title text-center">How it works</h3>
+<div class="row text-center">
+    <div class="col-md-4 mb-4">
+        <div class="card event-card h-100 p-4">
+            <div class="step-icon">📝</div>
+            <h5 class="event-title">1. Create an account</h5>
+            <p class="text-muted">Register in seconds and log in securely.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card event-card h-100 p-4">
+            <div class="step-icon">🔍</div>
+            <h5 class="event-title">2. Explore events</h5>
+            <p class="text-muted">See upcoming events, open seats and registration deadlines.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card event-card h-100 p-4">
+            <div class="step-icon">🎟</div>
+            <h5 class="event-title">3. Book your seat</h5>
+            <p class="text-muted">Get your own seat number. If an event is full, join the waitlist.</p>
+        </div>
+    </div>
+</div>
